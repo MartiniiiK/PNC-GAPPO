@@ -1,35 +1,38 @@
-# PNC-GAPPO: Generalizable Petri Net Scheduling with PPO
+# A Generalisable Learning-Based Scheduler: a Petri-net-conditioned deep reinforcement learning framework with a graph attention network and proximal policy optimisation (PPO) algorithm (PNC-GAPPO)
 
-This project implements a **generalizable scheduling** approach for Petri Net (PN) based manufacturing systems using Proximal Policy Optimization (PPO). The goal is to train a single policy that can generalize across different PN instances—including randomly generated ones—without retraining, achieving robust scheduling decisions that minimize makespan while avoiding deadlocks.
+This project implements a **generalizable scheduling** approach for robotic celluar manufacturing systems (RCMSs) using place-timed Petri Nets (PTPNs). The goal is to train a single policy that can generalize across different RCMS instances—including randomly generated ones—without retraining, achieving transferable scheduling decisions that minimize makespan.
 
 ## Project Overview
 
-The project addresses the challenge of **generalization in scheduling**: instead of training a policy for one specific PN instance, we train on diverse PN structures (randomly generated or from a pool) so that the learned policy can be applied to **unseen** PN instances at test time. This is essential for real-world manufacturing where new job-shop configurations frequently arise.
+The project addresses the challenge of **instance-specific scheduling**: instead of training a policy for one specific RCMS instance, we train on diverse systems (randomly generated from a simulator) so that the learned policy can be applied to **unseen** instances in validation. This is essential for real-world manufacturing where new configurations frequently arise.
 
-### Key Features
+### Key Contributions
 
-- **Generalizable Policy**: A single PPO-based actor-critic network that outputs transition-conditioned action logits
-- **Multiple Training Modes**: `random_gen` (random PN per episode), `gen_pool` (maintain a pool of PNs), `fixed_pool`, or `single_instance`
-- **Flexible PN Representation**: Dynamic state (marking, remaining times) + static context (structure, operation times)
-- **MLP or GAT Backend**: Configurable network architecture (MLP or Graph Attention) for place-transition aggregation
+This project focuses on **generalisable scheduling**.
+- **PTPN Simulator**: we implement a PTPN simulator supporting multi-robot operations and flexible routing to randomly produce diverse training instances, which enables the scheduler to learn a generalisable policy;<br>
+- **GAT Embedding**: we employ the GAT to derive tailored node embeddings within PNs, which learns adaptive attention weights over neighbours for a more nuanced understanding of different RCMSs;<br>
+- **PTPN-conditioned Decision Maker**: PPO is introduced to fired transitions based on both dynamic state and static PN contexts. We further design per-episode advantage normalisation, which independently normalises advantages within each training episode to mitigate gradient signal interference facing multiple PNs, thereby promoting cross-instance generalisation;<br>
+- **End-to-End Generalisation Framework**: we monitor the scheduler’s decision-making performance on unseen RCMS instances during the end-to-end training paradigm. Through comparative and ablation experiments, we demonstrate the competitive edge of our proposed method. To the best of our knowledge, this is the first work to achieve effective policy generalisation within the context of RCMS scheduling;<br>
 
----
+### PN-DGS Workflow
+The system scheduling workflow is illustrated in the diagram below.<br>
+![PNC-GAPPO Workflow](https://github.com/MartiniiiK/PNC-GAPPO/blob/main/Pic/PNC-GAPPO.pdf?raw=true)
 
-## Installation
+## Program Demonstration
+The project is developed in Python using a high-performance computing platform equipped with a NVIDIA GeForce RTX 3080 GPU (20 GB VRAM) running on CUDA 12.4. <br>
+This demonstration is typically performed in Visual Studio Code. For a detailed explanation of the proposed algorithm, please refer to our paper.<br>
+**Due to the requirements of the paper review process, we are currently unable to provide an operation tutorial video for the project. It will be provided at an appropriate time. Please stay tuned.**
+
+## Getting Started
 
 ### Requirements
-
 - Python 3.8+
 - PyTorch
 - NumPy
 - Pandas
 - Matplotlib
 - Seaborn
-
-```bash
-pip install torch numpy pandas matplotlib seaborn
-```
-
+- 
 ---
 
 ## How to Run
@@ -49,7 +52,7 @@ cd PNC-GAPPO
 python Train.py
 ```
 
-**Important**: Run from the project directory so that paths to `PNfiles/`, `Training_result/`, and `Eval_result/` resolve correctly.
+**Important**: Run from the project directory so that paths to `PNfiles/`, `Training_result/`, and `Eval_result/` resolve correctly. Please manually configure the training mode and validation system in Config.py
 
 #### Training Modes (Config.py)
 
@@ -57,15 +60,6 @@ python Train.py
 - `TRAIN_MODE = "gen_pool"`: Maintain a pool of PNs, sample from it, and periodically refresh
 - `TRAIN_MODE = "fixed_pool"`: Sample from a fixed set of PN files
 - `TRAIN_MODE = "single_instance"`: Train on a single PN (for debugging)
-
-#### Key Config Parameters
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `EPISODES` | Total training episodes | 5000 |
-| `EVAL_INTERVAL` | Validation interval (episodes) | 50 |
-| `ROLLOUT_STEPS` | PPO rollout buffer size | 1024 |
-| `AC_NET_TYPE` | Network type: `"mlp"` or `"gat"` | `"mlp"` |
 
 ### Evaluation
 
@@ -77,87 +71,27 @@ python Eval.py --model path/to/model.pth
 
 If `--model` is omitted, the latest checkpoint in `Training_result/Models/` is used.
 
-**Options:**
-
-- `--bench`: Run evaluation on benchmark PN files (Config.TRAIN_PN_LIST)
-- `--no-bench`: Skip benchmark evaluation
-- `--random-pns N`: Evaluate on N randomly generated PNs (default: 20)
-- `--seed S`: Random seed for PN generation
-- `--export-random`: Export generated PNs for reproducibility
-- `--gen-stage I`: Use curriculum stage I for the generator
-
-**Examples:**
-
-```bash
-# Evaluate on benchmarks and 50 random PNs
-python Eval.py --bench --random-pns 50
-
-# Evaluate with exported random PNs
-python Eval.py --export-random --seed 42
-```
-
-### PN Generator Difficulty Test
-
-To test the difficulty of the random PN generator:
-
-```bash
-python PN_Generator.py -n 100
-```
-
-Options:
-
-- `-n, --n_tests`: Number of PNs to test (default: 100)
-- `--greedy`: Use greedy policy
-- `--serial`: Use serial policy (one job at a time)
-
 ---
 
 ## Project Structure
 
 | File / Directory | Description |
 |------------------|-------------|
-| **Train.py** | Main training script. Runs PPO training with configurable modes, validation, and final evaluation. |
+| **Train.py** | Main training script. Runs training with configurable modes, validation, and final evaluation. |
 | **Eval.py** | Evaluation script. Loads a checkpoint and runs greedy evaluation on benchmarks and/or random PNs. |
 | **Config.py** | Central configuration: paths, hyperparameters, PN size limits, training mode, PPO settings. |
 | **Agent.py** | PPO agent: transition storage, GAE computation, per-episode advantage normalization, PPO update. |
 | **Network.py** | Actor-critic networks: MLP-based and GAT-based transition-conditioned networks. |
 | **Environment.py** | RL environment wrapping PN: `reset()`, `step()`, state/action mask construction. |
-| **PN.py** | Petri Net core: load from files, state transition, enabled transitions, goal/deadlock detection. |
-| **PN_Generator.py** | Random PN generator and `GeneratorPNPool` for `gen_pool` mode. Supports curriculum via `configure()`. |
-| **Utils.py** | Helpers: benchmark evaluation, random PN evaluation, training/benchmark logging, plotting, curriculum manager. |
+| **PN.py** | Petri Net core: load from files. |
+| **PN_Generator.py** | Random PN generator and `GeneratorPNPool` for `gen_pool` mode. |
+| **Utils.py** | Helpers: benchmark evaluation, random PN evaluation, training/benchmark logging, plotting. |
 | **PNfiles/** | Benchmark PN definitions (`*_init.txt`, `*_matrix.txt`). |
-| **Training_result/** | Training outputs: `training_log.csv`, `train_history.pt`, `Models/` (checkpoints). |
-| **Eval_result/** | Per-benchmark evaluation history and plots. |
+| **Training_result/** | Training outputs. |
+| **Eval_result/** | Evaluation history and plots. |
 
 ---
 
-## Output Directories
+## Contact
 
-- **Training_result/**: Training logs, plots, and model checkpoints
-  - `training_log.csv`: Episode-level metrics
-  - `train_history.pt`: Full training history (torch)
-  - `Models/model_ep{N}.pth`: Checkpoints
-  - `Models/model_best_{name}.pth`: Best model per benchmark
-- **Eval_result/**: Per-benchmark CSV and plots
-- **Training_result/** is typically excluded from version control (add to `.gitignore`)
-
----
-
-## Generalization in Scheduling
-
-This project focuses on **generalizable scheduling**:
-
-1. **Problem**: In manufacturing, job-shop configurations (PNs) vary. A policy trained on one PN often fails on another.
-2. **Approach**: Train on diverse PNs (random generation or a pool) so the policy learns structure-invariant decision rules.
-3. **Representation**: Fixed-size padded state (marking, remaining times, place mask) + static context (incidence matrices, operation times). This allows the same network to handle PNs of different sizes.
-4. **Training Modes**:
-   - `random_gen`: Maximum diversity; each episode sees a new PN.
-   - `gen_pool`: Balance between diversity and repeated exposure for stable learning.
-
-The trained policy can then be applied to **unseen** PN instances without retraining, achieving generalization across the PN distribution.
-
----
-
-## License
-
-See repository license file.
+**The contact link cannot be provided at this moment.**
