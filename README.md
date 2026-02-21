@@ -1,10 +1,10 @@
-# A Generalisable Learning-Based Scheduler: a Petri-net-conditioned deep reinforcement learning framework with a graph attention network and proximal policy optimisation (PPO) algorithm (PNC-GAPPO)
+# PNC-GAPPO: A Generalisable Learning-Based Scheduler 
 
 This project implements a **generalizable scheduling** approach for robotic celluar manufacturing systems (RCMSs) using place-timed Petri Nets (PTPNs). The goal is to train a single policy that can generalize across different RCMS instances—including randomly generated ones—without retraining, achieving transferable scheduling decisions that minimize makespan.
 
 ## Project Overview
 
-The project addresses the challenge of **instance-specific scheduling**: instead of training a policy for one specific RCMS instance, we train on diverse systems (randomly generated from a simulator) so that the learned policy can be applied to **unseen** instances in validation. This is essential for real-world manufacturing where new configurations frequently arise.
+The project, a Petri-net-conditioned deep reinforcement learning framework with a graph attention network and proximal policy optimisation (PPO) algorithm (PNC-GAPPO), addresses the challenge of **instance-specific scheduling**: instead of training a policy for one specific RCMS instance, we train on diverse systems (randomly generated from a simulator) so that the learned policy can be applied to **unseen** instances in validation. This is essential for real-world manufacturing where new configurations frequently arise.
 
 ### Key Contributions
 
@@ -16,7 +16,7 @@ This project focuses on **generalisable scheduling**.
 
 ### PN-DGS Workflow
 The system scheduling workflow is illustrated in the diagram below.<br>
-![PNC-GAPPO Workflow](https://github.com/MartiniiiK/PNC-GAPPO/blob/main/Pic/PNC-GAPPO.pdf?raw=true)
+![PNC-GAPPO Workflow](https://github.com/MartiniiiK/PNC-GAPPO/blob/main/Pic/PNC-GAPPO.png?raw=true)
 
 ## Program Demonstration
 The project is developed in Python using a high-performance computing platform equipped with a NVIDIA GeForce RTX 3080 GPU (20 GB VRAM) running on CUDA 12.4. <br>
