@@ -1,6 +1,6 @@
-# PNC-GAPPO: A Generalisable Learning-Based Scheduler 
+# PNC-GAPPO: A Generalizable Learning-Based Scheduler 
 
-This project implements a **generalizable scheduling** approach for robotic celluar manufacturing systems (RCMSs) using place-timed Petri Nets (PTPNs). The goal is to train a single policy that can generalize across different RCMS instances—including randomly generated ones—without retraining, achieving transferable scheduling decisions that minimize makespan.
+This project implements a **generalizable scheduling** approach for robotic celluar manufacturing systems (RCMSs) using place-timed Petri Nets (PTPNs). The goal is to train a single policy that can generalize across different RCMS instances without retraining, achieving transferable scheduling decisions that minimize makespan.
 
 ## Project Overview
 
@@ -8,13 +8,13 @@ The project, a Petri-net-conditioned deep reinforcement learning framework with 
 
 ### Key Contributions
 
-This project focuses on **generalisable scheduling**.
-- **PTPN Simulator**: we implement a PTPN simulator supporting multi-robot operations and flexible routing to randomly produce diverse training instances, which enables the scheduler to learn a generalisable policy;<br>
+This project focuses on **generalizable scheduling**.
+- **Instance Gernerator**: PNC-GAPPO is trained in an end-to-end manner, utilizing an on-the-fly stochastic generator to provide a continuous stream of PTPN-modeled RCMS instances, which enable the scheduler to learn a generalisable policy;<br>
 - **GAT Embedding**: we employ the GAT to derive tailored node embeddings within PNs, which learns adaptive attention weights over neighbours for a more nuanced understanding of different RCMSs;<br>
 - **PTPN-conditioned Decision Maker**: PPO is introduced to fired transitions based on both dynamic state and static PN contexts. We further design per-episode advantage normalisation, which independently normalises advantages within each training episode to mitigate gradient signal interference facing multiple PNs, thereby promoting cross-instance generalisation;<br>
-- **End-to-End Generalisation Framework**: we monitor the scheduler’s decision-making performance on unseen RCMS instances during the end-to-end training paradigm. Through comparative and ablation experiments, we demonstrate the competitive edge of our proposed method. To the best of our knowledge, this is the first work to achieve effective policy generalisation within the context of RCMS scheduling;<br>
+- **Extensive Experiments**: we monitor the scheduler’s decision-making performance on unseen RCMS instances during the end-to-end training paradigm. Through comparative and ablation experiments across **4** systems with a total of **16** configurations, we demonstrate the competitive edge of our proposed method. To the best of our knowledge, this is the first work to achieve effective policy generalization within the context of RCMS scheduling;<br>
 
-### PN-DGS Workflow
+### PNC-GAPPO Workflow
 The system scheduling workflow is illustrated in the diagram below.<br>
 ![PNC-GAPPO Workflow](https://github.com/MartiniiiK/PNC-GAPPO/blob/main/Pic/PNC-GAPPO.png?raw=true)
 
